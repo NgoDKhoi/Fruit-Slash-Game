@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | {{{ PRODUCT_NAME }}}</title>
+    <style>
+      body { margin: 0; padding: 0; overflow: hidden; background-color: #000; display: flex; justify-content: center; align-items: center; height: 100vh; }
+      #unity-canvas { width: 100%; height: 100%; object-fit: contain; }
+      #video-element { display: none; } /* Hidden video for WebCam */
+    </style>
+  </head>
+  <body>
+    <!-- The webcam video stream -->
+    <video id="video-element" autoplay playsinline></video>
+    
+    <!-- Unity WebGL Canvas -->
+    <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} tabindex="-1"></canvas>
+    
+    <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+    <script>
+      var unityInstance = null;
+      var worker = null;
+      var latestHandData = ""; // Global variable to store raw string from worker
+
+      // Function to be called from Unity (.jslib)
+      window.GetHandDataString = function() {
+          return latestHandData;
+      };
+
+      // Unity Initialization
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: "Build/{{{ DATA_FILENAME }}}",
+        frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+        codeUrl: "Build/{{{ CODE_FILENAME }}}",
+#if MEMORY_FILENAME
+        memoryUrl: "Build/{{{ MEMORY_FILENAME }}}",
+#endif
+#if SYMBOLS_FILENAME
+        symbolsUrl: "Build/{{{ SYMBOLS_FILENAME }}}",
+#endif
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "{{{ COMPANY_NAME }}}",
+        productName: "{{{ PRODUCT_NAME }}}",
+        productVersion: "{{{ PRODUCT_VERSION }}}",
+      }).then((instance) => {
+        unityInstance = instance;
+        startCameraAndWorker();
+      }).catch((message) => {
+        alert(message);
+      });
+
+      function startCameraAndWorker() {
+          const videoElement = document.getElementById('video-element');
+          
+          // 1. Initialize Web Worker
+          worker = new Worker('worker.js');
+          
+          // 2. Receive data from Worker
+          worker.onmessage = function(e) {
+              if (e.data.type === 'HAND_DATA') {
+                  latestHandData = e.data.payload;
+              }
+          };
+
+          // 3. Request Webcam Access
+          navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480, frameRate: { ideal: 60 } } })
+          .then((stream) => {
+              videoElement.srcObject = stream;
+              videoElement.onloadedmetadata = () => {
+                  videoElement.play();
+                  // Start a loop to send video frames to the worker
+                  sendFrameToWorker();
+              };
+          })
+          .catch((err) => {
+              console.error("Camera error:", err);
+              alert("Please allow camera access to play Server Defender!");
+          });
+          
+          function sendFrameToWorker() {
+              if (!videoElement.paused && !videoElement.ended) {
+                  // Create an ImageBitmap from the video frame (zero-copy transfer is possible, but we'll use ImageBitmap)
+                  createImageBitmap(videoElement).then(bitmap => {
+                      worker.postMessage({ type: 'PROCESS_FRAME', frame: bitmap }, [bitmap]);
+                  }).catch(e => console.error(e));
+              }
+              // Aim for 30-60 FPS capturing
+              requestAnimationFrame(sendFrameToWorker);
+          }
+      }
+    </script>
+  </body>
+</html>

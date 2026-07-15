@@ -1,15 +1,58 @@
 # Active Project State & Debug Ledger
 
 ## 1. Work in Progress (WIP)
-- [x] Đã hoàn thành Phase 0: Chốt kiến trúc hệ thống và setup tài liệu `/docs`.
-- [ ] **NEXT STEP (Dành cho phiên làm việc sau):** Bắt tay ngay vào **Phase 1**. Khởi tạo project Unity 2D (URP), set platform thành WebGL. Sau đó bắt đầu tạo template `index.html` và viết mã cho `worker.js` (MediaPipe JS).
+## Current Status
+- **Phase 1 (Computer Vision Integration): ✅ HOÀN TẤT & VALIDATED (2026-07-05)**
+  - Luồng dữ liệu end-to-end đã hoạt động: Webcam → MediaPipe (Main Thread) → `latestHandData` (global JS var) → `CVBridge.jslib` → `WebGLHandReceiver.cs` → `HandCursor2D.cs` → Chấm đỏ di chuyển theo tay trên trình duyệt.
+  - Build and Run trong Unity WebGL thành công, chấm đỏ hiển thị và tracking tay chính xác.
+- **Phase 2 (Core Gameplay): ✅ HOÀN TẤT (2026-07-06)**
+  - Task 2.1 & 2.2: Hệ thống `MalwareBug` (OOP), `ObjectPooler`, `BugSpawner`. `HandCursor2D` có thể "tát" bọ.
+  - Task 2.3: Hệ thống Cable Reconnection (`CableEndpoint`, `ConnectionPort`, `CableRenderer`, `CableManager`).
+  - Task 2.4: `GameManager` Singleton với State Machine, timer, score, server HP.
+- **Phase 3 (Polish): ✅ HOÀN TẤT (Ngoại trừ setup Audio) (2026-07-07)**
+  - ✅ Task 3.1 (Code): `CameraShake.cs`, particle explosion, TrailRenderer.
+  - ✅ Task 3.2 (Code): `UIManager.cs` điều khiển MainMenu, HUD, GameOver. Xóa `[TEMP] Auto-Start` trong GameManager.
+  - ⚠️ Task 3.3 (Code): `AudioManager.cs` quản lý BGM và SFX đã code xong. Tích hợp âm thanh vào các sự kiện game đã hoàn tất. **Nhưng người dùng yêu cầu tạm hoãn việc kéo thả Audio Source/Clips trong Unity Editor sang lúc khác**.
+  - Task tiếp theo: **Phase 4 — Backend & Tích hợp Leaderboard**.
 
-## 2. Known Bugs & Blockers
-- Chưa có bug hay blocker nào (Chưa bắt đầu giai đoạn code).
-- **Lưu ý Môi trường:** Khi test luồng WebGL + Webcam ở máy local (localhost), trình duyệt có thể sẽ chặn Webcam nếu không dùng kết nối HTTPS hoặc live server chuẩn. Đừng quên setup Local Web Server (như Python `http.server` hoặc VSCode Live Server) cho phiên sau.
+## 2. Next Steps (Ưu tiên theo thứ tự)
+1. **Setup AudioManager (Thủ công):** Tạo AudioManager trong Scene và gán các file âm thanh theo hướng dẫn walkthrough.
+2. **Phase 4 - Task 4.1:** Thiết lập Firebase / Supabase cho Leaderboard.
 
-## 3. Architectural Decisions & Discarded Approaches
-- **[2026-07-05] Bỏ Python/UDP (Discarded):** Quyết định loại bỏ hoàn toàn ý tưởng dùng Python/OpenCV/UDP vì nó không thể chạy trực tiếp trên trình duyệt WebGL. Chốt kiến trúc **Unity WebGL + JS MediaPipe**.
-- **[2026-07-05] Bắt buộc dùng Web Worker:** Tuyệt đối không chạy MediaPipe trên Main Thread chung với Unity để tránh chiếm CPU, làm tụt FPS của game.
-- **[2026-07-05] Loại bỏ SendMessage(JSON):** Đã cấm dùng hàm này để truyền data mỗi frame vì sinh ra quá nhiều rác bộ nhớ (Garbage Collection Spikes). Bắt buộc dùng plugin **`.jslib`** và chuỗi raw data (Ví dụ: `"0.45,0.62,0"`).
-- **[2026-07-05] Dùng Firebase (Leaderboard):** Chốt dùng Firebase Realtime DB thay vì tự build AWS EC2/Docker để tối ưu thời gian deploy và bảo trì.
+## 3. Resolved Blockers (Đã giải quyết)
+- **[2026-07-05] CDN MIME type errors:** Lỗi `strict MIME type checking` khi `importScripts()` tải file từ CDN → Fix bằng cách tải tất cả MediaPipe assets về `mediapipe/` cục bộ (same-origin).
+- **[2026-07-05] Unity dev server MIME rỗng:** Unity Build and Run trả `Content-Type: ''` cho `.js` trong subdirectory → Fix bằng `importScripts` override (fetch + Blob URL). *Lưu ý: Fix này không còn cần thiết sau khi chuyển sang Main Thread.*
+- **[2026-07-05] MediaPipe không chạy trong Web Worker:** `@mediapipe/hands` v0.4.x dùng DOM APIs nội bộ → crash trong Worker → Chuyển sang Main Thread. WASM inference vẫn chạy tách biệt.
+- **[2026-07-05] Junction link gây build conflict:** Junction symlink ở repo root trỏ cùng file với template → Unity lock conflict khi build → Đã xóa junction.
+- **[2026-07-06] Lỗi ngược trục Y trong Editor (Mouse Fallback):** Trục Y của chuột trong Unity (0 ở đáy) ngược với MediaPipe (0 ở đỉnh) → Fix bằng cách đảo ngược (`1f - mousePos.y`) trong `WebGLHandReceiver.cs` để test Editor chuẩn như chạy web thật.
+- **[2026-07-06] UI Landmark Overlay X mirroring fix:** Đã điều chỉnh logic vẽ landmark trong `index.html` để mirror trục X cho cả các đường nối và điểm, khớp với video webcam mirrored.
+- **[2026-07-07] Khó đánh trúng bug (Hitbox/Swipe logic):** Bỏ yêu cầu vận tốc swipe (`isSwiping`) trong `HandCursor2D.cs` để hễ chạm là diệt bọ (giống Fruit Ninja). Hitbox của bọ và tay cần được kéo to hơn hình ảnh thật 10-20% trong Editor để có Game Feel tốt hơn.
+
+## 4. Architectural Decisions & Discarded Approaches
+- **[2026-07-07] Tạm hoãn Âm thanh (Task 3.3):** Code AudioManager và trigger event đã hoàn tất, nhưng việc gán AudioClip trong Editor bị người dùng yêu cầu dời lại sau. Nhờ null check (`if (AudioManager.Instance != null)`), game vẫn chạy an toàn không lỗi ném ra console.
+- **[2026-07-05] Bỏ Python/UDP (Discarded):** Không thể chạy trên trình duyệt WebGL. Chốt kiến trúc **Unity WebGL + JS MediaPipe**.
+- **[2026-07-05] Loại bỏ SendMessage(JSON):** Cấm dùng để truyền data mỗi frame. Bắt buộc dùng plugin **`.jslib`** và chuỗi raw data.
+- **[2026-07-05] Dùng Firebase (Leaderboard):** Firebase Realtime DB + REST API qua `UnityWebRequest`.
+- **[2026-07-05] Local MediaPipe Assets:** `@mediapipe/hands@0.4.1675469240` → `mediapipe/` cục bộ. Chỉ giữ `hand_landmark_lite.tflite` (modelComplexity: 0).
+- **[2026-07-05] Main Thread MediaPipe (không dùng Web Worker):** Thư viện `@mediapipe/hands` v0.4.x yêu cầu DOM APIs → Main Thread. ML inference nặng chạy trong WASM. Camera throttle ~30fps.
+- **[2026-07-07] Xóa TEMP Auto-Start:** Đã xóa logic ép game tự chạy. Giờ người chơi phải bấm nút "Start Game" từ Main Menu.
+
+## 5. Pending Inspector Setup (Checklist cho Unity Editor)
+
+Sau khi tách Hierarchy và tách Game Mode, các tham chiếu trong Inspector bị mất. Cần kiểm tra và kéo thả lại:
+
+| # | GameObject | Trường (Field) | Kéo thả (Drag) | Trạng thái |
+|---|---|---|---|---|
+| ① | `GameManager` | `bugSpawner` | → `BugSpawner` | ❓ Chưa xác nhận |
+| ② | `GameManager` | `cableManager` | → `CableManager` | ❓ Chưa xác nhận |
+| ③ | `ObjectPooler` | `Pools[]` | Worm, Trojan, BugExplosion (prefab, size:10) | ❓ Chưa xác nhận |
+| ④ | `BugSpawner` | `Bug Tags[]` | `"Worm"`, `"Trojan"` | ❓ Chưa xác nhận |
+| ⑤ | `Main Camera` | `CameraShake.cs` | Gắn component | ❓ Chưa xác nhận |
+| ⑥ | `HandCursor` | `TrailRenderer` | Thêm component, Time:0.15, Width:0.3→0 | ❓ Chưa xác nhận |
+| ⑦ | `Canvas` | `UIManager.cs` | Kéo thả Panels và TextMeshPro/Slider UI | ❓ Chưa xác nhận |
+| ⑧ | `CableManager`| `cableSystemContainer`| Tạo GameObject `CableSystem` rỗng, gom tất cả Port/Endpoint vào trong, rồi kéo vào ô này | ❓ Chưa xác nhận |
+| ⑨ | `Canvas` | `2 Nút Play` | 1 nút trỏ tới `OnStartBugDefenderClicked`, 1 nút trỏ tới `OnStartCableReconnectClicked` | ❓ Chưa xác nhận |
+
+| ⑩ | `AudioManager` | `Audio Sources & Clips`| (TẠM HOÃN) Tạo GameObject `AudioManager`, gán script, gán 2 component AudioSource và kéo thả âm thanh | ❓ Chưa xác nhận |
+
+> **Lưu ý:** Khi tất cả các ô trên được xác nhận ✅, xóa mục 5 này khỏi state.md.

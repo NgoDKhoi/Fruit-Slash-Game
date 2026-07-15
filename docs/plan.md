@@ -13,52 +13,54 @@ Tài liệu này vạch ra lộ trình phát triển từng bước cho **Server
 **Mục tiêu:** Thiết lập foundational tech stack và xác thực luồng giao tiếp cốt lõi giữa JavaScript và Unity WebGL.
 
 ### Milestones & Tasks (Cột mốc & Nhiệm vụ)
-- [ ] **Task 1.1: Khởi tạo Project**
+- [x] **Task 1.1: Khởi tạo Project**
     -   Khởi tạo project Unity 2D (dùng URP - Universal Render Pipeline).
     -   Cài đặt target platform thành WebGL trong Unity Build Settings.
     -   Thiết lập version control (Git).
-- [ ] **Task 1.2: WebGL Template & Web Worker cho MediaPipe**
+- [x] **Task 1.2: WebGL Template & MediaPipe Integration**
     -   Tạo một Unity WebGL Template tùy chỉnh (`index.html`).
-    -   Tích hợp thư viện `@mediapipe/hands` vào bên trong một **Web Worker** (`worker.js`). Việc này giúp cô lập quá trình xử lý CV nặng nề khỏi Main Thread của Unity, duy trì tốc độ khung hình 60 FPS.
-    -   Viết logic để truyền các video frames (khung hình) vào Worker và nhận lại tọa độ bàn tay (hand coordinates).
-- [ ] **Task 1.3: Giao tiếp JS to Unity (Sử dụng .jslib)**
+    -   Tích hợp thư viện `@mediapipe/hands` v0.4.x trên **Main Thread** (thư viện không hỗ trợ Web Worker do dùng DOM APIs nội bộ). Binary assets (`.tflite`, `.wasm`, `.data`) được host cục bộ trong `mediapipe/` để tránh lỗi CORS/MIME. Phần ML inference nặng chạy trong WASM runtime tách biệt. Camera capture throttle ~30fps.
+    -   Viết logic để truyền video frames vào MediaPipe và lưu tọa độ bàn tay (hand coordinates) vào biến global `latestHandData`.
+- [x] **Task 1.3: Giao tiếp JS to Unity (Sử dụng .jslib)**
     -   Tránh sử dụng `SendMessage(JSON)` để ngăn chặn hiện tượng rác bộ nhớ (Garbage Collection - GC spikes) gây giật lag trong Unity.
     -   Tạo một plugin `.jslib` trong Unity. Plugin này cho phép mã C# đọc trực tiếp tọa độ mới nhất từ bộ nhớ đệm (buffer) của JavaScript thông qua một định dạng chuỗi thô (raw string) cực kỳ tối ưu (ví dụ: `"0.45,0.62,0"`).
-- [ ] **Task 1.4: Xác thực (Validation)**
-    -   Map (ánh xạ) các tọa độ chuẩn hóa (0.0 đến 1.0) nhận được sang không gian màn hình/thế giới (Screen/World Space) của Unity.
-    -   Hiển thị vị trí bàn tay bằng một placeholder Sprite đơn giản (`HandCursor2D`) trong Unity để test.
+- [x] **Task 1.4: Xác thực (Validation) & Fix Web Worker Blocker**
+    -   Tải các file nhị phân của MediaPipe (`.tflite`, `.data`, `.wasm`) về lưu nội bộ trong `WebGLTemplates/ServerDefender` để khắc phục lỗi Strict MIME type của CDN khi gọi qua Web Worker.
+    -   Map (ánh xạ) tọa độ chuẩn hóa sang World Space của Unity.
+    -   Hiển thị vị trí bàn tay bằng `HandCursor2D` và verify thành công.
 
 ## Phase 2: Cơ chế Gameplay Cốt lõi (Core Mechanics)
 **Mục tiêu:** Lập trình các vòng lặp tương tác chính: Tát/Quẹt (Slap/Swipe) bọ (bugs) và Cầm/Kéo (Pinch/Drag) dây cáp mạng.
 
 ### Milestones & Tasks
-- [ ] **Task 2.1: Nhận diện Cử chỉ (Gesture Recognition)**
+- [x] **Task 2.1: Nhận diện Cử chỉ (Gesture Recognition)**
     -   **Slap/Swipe:** Phát hiện sự thay đổi vận tốc (velocity) đột ngột của bàn tay trong một khoảng thời gian ngắn (`DeltaPosition / DeltaTime > Threshold`).
     -   **Pinch:** Tính toán khoảng cách (distance) giữa Ngón trỏ (Index Finger Tip) và Ngón cái (Thumb Tip). Nếu khoảng cách < Threshold, kích hoạt trạng thái "Cầm/Nắm" (Pinch/Grab).
-- [ ] **Task 2.2: Hệ thống Bug/Malware (Lập trình OOP)**
+- [x] **Task 2.2: Hệ thống Bug/Malware (Lập trình OOP)**
     -   Triển khai Pattern `ObjectPooler` để spawn (tạo) và destroy (hủy) các con bug một cách tối ưu hiệu năng.
     -   Tạo class `BugSpawner` để quản lý tỷ lệ spawn, các đợt tấn công (waves) và độ khó tăng dần.
     -   Tạo base class `MalwareBug` và các biến thể bug cụ thể (ví dụ: fast bugs, tanky bugs).
     -   Tích hợp Physics 2D (Colliders) để bắt va chạm (intersections) giữa `HandCursor2D` (khi đang ở trạng thái swipe) và `MalwareBug`.
-- [ ] **Task 2.3: Hệ thống Nối cáp mạng (Cable Reconnection)**
+- [x] **Task 2.3: Hệ thống Nối cáp mạng (Cable Reconnection)**
     -   Lập trình các đầu cáp có thể kéo thả (draggable) gắn liền với trạng thái Pinch (tương đương với `OnMouseDrag` truyền thống).
     -   Tạo các cổng kết nối (Ports - snap targets). Khi nhả cáp mạng ra trong bán kính của đúng cổng quy định, kết nối được thiết lập (hoàn thành cấu hình VLAN/OSPF).
-- [ ] **Task 2.4: Game Manager & State Machine**
+- [x] **Task 2.4: Game Manager & State Machine**
     -   Triển khai class `GameManager` (áp dụng Singleton pattern) để xử lý các Game States: `MainMenu`, `Playing`, `GameOver`.
     -   Tạo vòng lặp đếm ngược 1-2 phút (timer loop) và hệ thống tính điểm (score tracking).
+    -   Tách biệt `GameMode`: Cho phép chọn chơi mini-game Bắt bọ hoặc Nối cáp thông qua UI, ẩn thành phần của mini-game kia.
 
 ## Phase 3: Đồ họa, Âm thanh & UI/UX (Polish)
 **Mục tiêu:** Nâng tầm "Game Feel", làm cho game phản hồi nhanh và cuốn hút.
 
 ### Milestones & Tasks
-- [ ] **Task 3.1: Visual Feedback & Particles**
+- [x] **Task 3.1: Visual Feedback & Particles**
     -   Thêm particle effects (hiệu ứng hạt) khi tiêu diệt Bug (hiệu ứng nổ kỹ thuật số/glitches).
     -   Thêm particle trails (vệt sáng) cho Hand Cursor để nhấn mạnh các cú quẹt tay (swipes).
     -   Triển khai hiệu ứng rung màn hình (screen shake) và khựng hình (hit-stop) để tăng lực sát thương khi đánh trúng.
-- [ ] **Task 3.2: Lập trình UI**
+- [x] **Task 3.2: Lập trình UI**
     -   Thiết kế và tích hợp HUD (Điểm số, Thời gian còn lại, Thanh máu hệ thống mạng).
     -   Tạo các pop-ups text như sát thương nảy lên (floating damage) hoặc thông báo "Access Denied".
-- [ ] **Task 3.3: Thiết kế Âm thanh (Audio)**
+- [ ] **Task 3.3: Thiết kế Âm thanh (Audio)** (🚧 *Tạm hoãn phần kéo thả Editor, code đã hoàn tất*)
     -   Tích hợp nhạc nền (background music) mang phong cách synth-wave năng động.
     -   Thêm các SFX (hiệu ứng âm thanh) rõ ràng cho hành động quẹt tay, đập bug, nối cáp, và còi báo động (alarms).
 

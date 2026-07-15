@@ -173,7 +173,7 @@ FruitSlash_Web/
 Trình duyệt web có cơ chế bảo mật: **chặn quyền truy cập Webcam** nếu trang web được mở trực tiếp từ file (`file://`). Vì vậy bạn **không thể** nháy đúp chuột vào `index.html` để chơi. Bắt buộc phải chạy qua một máy chủ ảo (`localhost`).
 
 **Cách lấy Mongoose Web Server:**
-1. Truy cập [https://mongoose.ws/](https://mongoose.ws/) và tải file `mongoose.exe` (dung lượng siêu nhẹ ~5MB, **không cần cài đặt**).
+1. Tải trực tiếp file `mongoose.exe` tại link chính thức này: **[Download mongoose.exe](https://github.com/cesanta/binary/releases/download/exe/mongoose.exe)** (dung lượng siêu nhẹ ~5MB, **không cần cài đặt**).
 2. Copy file `mongoose.exe` thả trực tiếp vào bên trong thư mục `FruitSlash_Web` (nằm **ngang hàng** với file `index.html`).
 3. Copy toàn bộ thư mục `FruitSlash_Web` (đã có `mongoose.exe` bên trong) vào **USB**.
 

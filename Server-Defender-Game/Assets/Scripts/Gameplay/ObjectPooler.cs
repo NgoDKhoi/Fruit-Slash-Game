@@ -75,6 +75,10 @@ public class ObjectPooler : MonoBehaviour
         ParticleSystem ps = objectToSpawn.GetComponent<ParticleSystem>();
         if (ps != null)
         {
+            // Bắt buộc Stop Action là None để tránh người dùng set nhầm thành Destroy làm vỡ ObjectPool
+            var main = ps.main;
+            main.stopAction = ParticleSystemStopAction.None;
+            
             ps.Play();
             StartCoroutine(DeactivateAfterParticle(objectToSpawn, ps, tag));
         }
@@ -87,7 +91,9 @@ public class ObjectPooler : MonoBehaviour
     /// </summary>
     public void ReturnToPool(string tag, GameObject obj)
     {
+        if (obj == null) return; // Bảo vệ: Nếu lỡ bị Destroy vĩnh viễn thì bỏ qua
         if (!poolDictionary.ContainsKey(tag)) return;
+        
         obj.SetActive(false);
         poolDictionary[tag].Enqueue(obj);
     }
@@ -96,6 +102,9 @@ public class ObjectPooler : MonoBehaviour
     {
         // Chờ cho particle phát xong hoàn toàn
         yield return new WaitForSeconds(ps.main.duration + ps.main.startLifetime.constantMax);
-        ReturnToPool(tag, obj);
+        if (obj != null)
+        {
+            ReturnToPool(tag, obj);
+        }
     }
 }

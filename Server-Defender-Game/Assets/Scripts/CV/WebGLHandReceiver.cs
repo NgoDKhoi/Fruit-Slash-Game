@@ -39,6 +39,7 @@ public class WebGLHandReceiver : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            transform.SetParent(null); // Fix lỗi DontDestroyOnLoad khi object là con
             DontDestroyOnLoad(gameObject);
         }
         else

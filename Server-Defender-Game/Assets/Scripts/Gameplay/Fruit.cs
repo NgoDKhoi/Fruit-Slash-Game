@@ -6,7 +6,7 @@ public class Fruit : MonoBehaviour
 {
     [Header("Base Stats")]
     public int maxHealth = 100;
-    public float speed = 2f;
+    public float speed = 3f;
     public int scoreValue = 10;
 
     [Tooltip("Phải khớp với Tag đã cấu hình trong ObjectPooler")]

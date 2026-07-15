@@ -968,6 +968,12 @@ MonoBehaviour:
   - tag: SliceEffect
     prefab: {fileID: 7325161968652046410, guid: e9697d4cc2180ce40b41643b912794fd, type: 3}
     size: 10
+  - tag: Bomb
+    prefab: {fileID: 7546171894568790502, guid: e650f56f24eb23d4da0d9e3b590e03bd, type: 3}
+    size: 5
+  - tag: BombExplosion
+    prefab: {fileID: 212735499583275074, guid: 2fcb2be05d421c440b711b5ca3a6d4a0, type: 3}
+    size: 3
 --- !u!1 &274803543
 GameObject:
   m_ObjectHideFlags: 0
@@ -5307,8 +5313,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b6aef65ba9f45a469c06a06ee995afc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialSpawnInterval: 2
-  minimumSpawnInterval: 0.5
+  initialSpawnInterval: 1.5
+  minimumSpawnInterval: 0.3
   fruitTags:
   - banana
   - lemon
@@ -5317,6 +5323,9 @@ MonoBehaviour:
   - strawberry
   - orange
   - watermelon
+  bombSpawnChance: 0.36
+  bombTags:
+  - Bomb
 --- !u!1 &1727425705
 GameObject:
   m_ObjectHideFlags: 0

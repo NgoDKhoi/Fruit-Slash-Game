@@ -3,11 +3,19 @@ using UnityEngine;
 
 public class FruitSpawner : MonoBehaviour
 {
-    public float initialSpawnInterval = 2f;
-    public float minimumSpawnInterval = 0.5f;
+    public float initialSpawnInterval = 1.5f;
+    public float minimumSpawnInterval = 0.3f;
     
     [Tooltip("Matches tags configured in ObjectPooler")]
     public string[] fruitTags = { "Banana", "Blackberry", "Cherry", "Peach", "Orange" };
+
+    [Header("Bomb Settings")]
+    [Tooltip("Tỉ lệ xuất hiện bom (0.0 đến 1.0)")]
+    [Range(0f, 1f)]
+    public float bombSpawnChance = 0.15f; 
+    
+    [Tooltip("Matches tags configured in ObjectPooler for bombs")]
+    public string[] bombTags = { "Bomb" };
 
     private bool isSpawning = false;
     private float currentSpawnInterval;
@@ -60,9 +68,26 @@ public class FruitSpawner : MonoBehaviour
 
     private void SpawnRandomFruit()
     {
-        if (ObjectPooler.Instance == null || fruitTags.Length == 0) return;
+        if (ObjectPooler.Instance == null) return;
 
-        string selectedTag = fruitTags[Random.Range(0, fruitTags.Length)];
+        string selectedTag = "";
+
+        // Tung xúc xắc xem lần này ra bom hay ra quả
+        if (bombTags.Length > 0 && Random.value <= bombSpawnChance)
+        {
+            // Ra Bom
+            selectedTag = bombTags[Random.Range(0, bombTags.Length)];
+        }
+        else
+        {
+            // Ra Quả
+            if (fruitTags.Length > 0)
+            {
+                selectedTag = fruitTags[Random.Range(0, fruitTags.Length)];
+            }
+        }
+
+        if (string.IsNullOrEmpty(selectedTag)) return;
         
         // Spawn at top of screen with random X position
         float spawnY = 6f; 

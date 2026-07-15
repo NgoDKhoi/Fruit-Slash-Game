@@ -9,7 +9,7 @@ public class WavyFruit : Fruit
         base.Awake();
         // Hoa quả bay nhanh, dễ chém (1 nhát)
         maxHealth = 100;
-        speed = 4f;
+        speed = 5f;
         scoreValue = 10;
     }
 

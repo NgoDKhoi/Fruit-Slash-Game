@@ -38,7 +38,7 @@
     <!-- MediaPipe Hands — loaded on Main Thread (WASM inference runs off-thread internally) -->
     <script src="mediapipe/hands.js"></script>
 
-    <script src="Build/F.loader.js"></script>
+    <script src="Build/FruitSlash-Web.loader.js"></script>
     <script>
       var unityInstance = null;
       var latestHandData = ""; // Global variable: raw string read by Unity via .jslib
@@ -58,9 +58,9 @@
 
       // Unity Initialization
       createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/F.data",
-        frameworkUrl: "Build/F.framework.js",
-        codeUrl: "Build/F.wasm",
+        dataUrl: "Build/FruitSlash-Web.data",
+        frameworkUrl: "Build/FruitSlash-Web.framework.js",
+        codeUrl: "Build/FruitSlash-Web.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "Server-Defender-Game",

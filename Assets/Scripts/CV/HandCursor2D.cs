@@ -57,7 +57,7 @@ public class HandCursor2D : MonoBehaviour
     private void Update()
     {
         // 0. Ẩn con trỏ nếu không ở trạng thái Playing (ở Menu hoặc GameOver)
-        if (GameManager.Instance != null && GameManager.Instance.State != GameManager.GameState.Playing)
+        if (GameManager.Instance != null && GameManager.Instance.CurrentState != GameManager.GameState.Playing)
         {
             spriteRenderer.enabled = false;
             circleCollider.enabled = false;

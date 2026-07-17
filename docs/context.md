@@ -1,10 +1,12 @@
 # Project Context & Overview
 
 ## 1. Project Objective (Mục tiêu Dự án)
-- **Tên Game:** Server Defender (Bảo vệ Máy chủ).
-- **Mục tiêu:** Xây dựng một tựa game tương tác 2D nhịp độ cực nhanh (1-2 phút/lượt) sử dụng công nghệ computer vision (nhận diện cử chỉ tay qua webcam). 
-- **Tech Stack:** Unity WebGL (C#) cho Game Engine + JavaScript MediaPipe cho Computer Vision + Firebase cho Leaderboard.
-- **Môi trường Deploy:** Chạy trực tiếp trên trình duyệt Web để dễ chia sẻ link. Tránh dùng cài đặt app Desktop phức tạp.
+- **Tên Game:** Fruit Slash (Trước đây là Server Defender).
+- **Mục tiêu:** Xây dựng một tựa game chém hoa quả (phiên bản bảo vệ máy chủ / chém bug) tương tác 2D nhịp độ cực nhanh sử dụng công nghệ computer vision (nhận diện cử chỉ tay qua webcam). 
+- **Tech Stack:** Unity WebGL (C#) cho Game Engine + JavaScript MediaPipe cho Computer Vision.
+- **Môi trường Deploy:** 
+  - **Online:** Vercel Rewrites (Proxy Cấp Cao) giúp URL luôn là `ngodkhoi.vercel.app/Fruit-Slash/` dù repo game nằm độc lập.
+  - **Offline (Sự kiện):** Dùng Mongoose.exe (Windows) hoặc Python HTTP Server (macOS) để chạy Local.
 
 ## 2. Target Audience & Users (Đối tượng Người dùng)
 - Sinh viên tham gia lễ hội công nghệ (IT/Tech Festival). Yêu cầu game phải phản hồi tức thời (zero latency input), đồ họa bắt mắt, và cơ chế tính điểm cạnh tranh (Leaderboard).
@@ -17,25 +19,21 @@
 - **.jslib Interop:** Cơ chế giao tiếp siêu tốc giữa JavaScript và Unity WebGL bằng cách map thẳng function. C# sẽ gọi hàm JS để lấy chuỗi tọa độ (raw string).
 
 ## 4. Cấu trúc File Hiện tại (Key Files)
+## 4. Cấu trúc File Hiện tại (Key Files)
 ```
-Server-Defender-Game/                    (Repo root — cũng là build output của Unity)
-├── index.html                           (Root copy cho dev, Unity build sẽ ghi đè bằng template)
-├── mediapipe/                           (MediaPipe assets — do Unity copy từ template khi build)
-│   ├── hands.js                         (MediaPipe Hands library)
-│   ├── hand_landmark_lite.tflite        (Lite ML model, ~2MB)
-│   ├── hands_solution_simd_wasm_bin.*   (WASM + data cho SIMD browsers)
-│   ├── hands_solution_wasm_bin.*        (WASM + data fallback)
-│   └── ...
-├── Build/                               (Unity WebGL build output)
+Fruit-Slash-Game/                        (Repo root & Unity Project root đã hợp nhất)
+├── FruitSlash-Web/                      (Thư mục xuất WebGL để deploy lên Vercel)
+│   ├── index.html                       (File chạy chính cho Web)
+│   ├── mediapipe/                       (MediaPipe assets cho Web)
+│   └── Build/                           (WASM và data của Unity)
 ├── docs/                                (Tài liệu dự án)
-└── Server-Defender-Game/                (Unity Project root)
-    └── Assets/
-        ├── Scripts/CV/
-        │   ├── WebGLHandReceiver.cs     (Singleton — đọc raw string từ JS qua .jslib, parse thành HandData struct)
-        │   └── HandCursor2D.cs          (Đọc HandData, ánh xạ viewport→world, hiển thị cursor + visual feedback)
-        ├── Plugins/WebGL/
-        │   └── CVBridge.jslib           (JS plugin — đọc window.GetHandDataString(), cấp phát WASM heap buffer)
-        └── WebGLTemplates/ServerDefender/
-            ├── index.html               (WebGL Template — load mediapipe/hands.js, init camera, xử lý frames)
-            └── mediapipe/               (Bản gốc MediaPipe assets — Unity copy ra build output khi build)
+├── Assets/                              (Mã nguồn Unity)
+│   ├── Scripts/CV/
+│   │   ├── WebGLHandReceiver.cs         (Singleton — đọc raw string từ JS qua .jslib)
+│   │   └── HandCursor2D.cs              (Đọc HandData, ánh xạ viewport→world, hiển thị cursor)
+│   ├── Plugins/WebGL/
+│   │   └── CVBridge.jslib               (JS plugin — đọc window.GetHandDataString())
+│   └── WebGLTemplates/ServerDefender/
+│       ├── index.html                   (WebGL Template — load mediapipe/hands.js, Smart Tracking)
+│       └── mediapipe/                   (Bản gốc MediaPipe assets — Unity copy ra khi build)
 ```

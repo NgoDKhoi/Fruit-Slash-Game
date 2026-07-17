@@ -90,7 +90,7 @@
 
           hands.setOptions({
               maxNumHands: 4, // Nâng lên 4 tay để quét toàn bộ người phía sau
-              modelComplexity: 1, // Full model tăng độ chính xác trong sự kiện
+              modelComplexity: 0, // Bắt buộc dùng Lite model vì source chỉ có file Lite
               minDetectionConfidence: 0.75, // Ngưỡng tự tin cao để lọc nhiễu
               minTrackingConfidence: 0.75
           });

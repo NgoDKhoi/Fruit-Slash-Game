@@ -31,12 +31,14 @@ public class HandCursor2D : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private CircleCollider2D circleCollider;
     private Rigidbody2D rb;
+    private TrailRenderer trailRenderer;
 
     private Vector3 previousPosition;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        trailRenderer = GetComponent<TrailRenderer>(); // Có thể null nếu user quên gắn
         
         // Setup Physics components
         circleCollider = GetComponent<CircleCollider2D>();
@@ -54,16 +56,27 @@ public class HandCursor2D : MonoBehaviour
 
     private void Update()
     {
+        // 0. Ẩn con trỏ nếu không ở trạng thái Playing (ở Menu hoặc GameOver)
+        if (GameManager.Instance != null && GameManager.Instance.State != GameManager.GameState.Playing)
+        {
+            spriteRenderer.enabled = false;
+            circleCollider.enabled = false;
+            if (trailRenderer != null) trailRenderer.enabled = false;
+            return;
+        }
+
         // 1. Đọc dữ liệu từ Receiver
         if (WebGLHandReceiver.Instance == null || !WebGLHandReceiver.Instance.CurrentHandData.IsTracking)
         {
             spriteRenderer.enabled = false;
             circleCollider.enabled = false; // Disable collisions if not tracking
+            if (trailRenderer != null) trailRenderer.enabled = false;
             return;
         }
 
         spriteRenderer.enabled = true;
         circleCollider.enabled = true;
+        if (trailRenderer != null) trailRenderer.enabled = true;
         HandData data = WebGLHandReceiver.Instance.CurrentHandData;
 
         // 2. Ánh xạ tọa độ (X axis mirroring chỉ áp dụng cho WebGL build)

@@ -89,22 +89,44 @@
           });
 
           hands.setOptions({
-              maxNumHands: 1, // Fix: Chỉ theo dõi 1 tay để tránh hoán đổi ID gây nhảy con trỏ
-              modelComplexity: 0, // Lite model for max WebGL performance
-              minDetectionConfidence: 0.5,
-              minTrackingConfidence: 0.5
+              maxNumHands: 4, // Nâng lên 4 tay để quét toàn bộ người phía sau
+              modelComplexity: 1, // Full model tăng độ chính xác trong sự kiện
+              minDetectionConfidence: 0.75, // Ngưỡng tự tin cao để lọc nhiễu
+              minTrackingConfidence: 0.75
           });
 
           hands.onResults((results) => {
-            // Update latestHandData (same as before)
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-              const hand = results.multiHandLandmarks[0];
-              const indexTip = hand[8];
-              const thumbTip = hand[4];
+            let bestHandIndex = -1;
+            let maxHandScore = -1;
 
-              const dx = indexTip.x - thumbTip.x;
-              const dy = indexTip.y - thumbTip.y;
-              const dist = Math.sqrt(dx * dx + dy * dy);
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+              // 1. Thuật toán chấm điểm (Scoring Algorithm)
+              for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                const hand = results.multiHandLandmarks[i];
+                const handedness = results.multiHandedness[i].label; // "Right" or "Left"
+
+                // Tính kích thước bàn tay (Từ cổ tay 0 đến khớp giữa 9)
+                const dx = hand[0].x - hand[9].x;
+                const dy = hand[0].y - hand[9].y;
+                const handSize = Math.sqrt(dx * dx + dy * dy);
+
+                // Ưu tiên tay phải: Nhân 1.5 lần điểm kích thước
+                let score = handSize * (handedness === "Right" ? 1.5 : 1.0);
+
+                if (score > maxHandScore) {
+                  maxHandScore = score;
+                  bestHandIndex = i;
+                }
+              }
+
+              // 2. Gửi tọa độ của Bàn Tay Tốt Nhất vào Unity
+              const bestHand = results.multiHandLandmarks[bestHandIndex];
+              const indexTip = bestHand[8];
+              const thumbTip = bestHand[4];
+
+              const pdx = indexTip.x - thumbTip.x;
+              const pdy = indexTip.y - thumbTip.y;
+              const dist = Math.sqrt(pdx * pdx + pdy * pdy);
               const isPinching = (dist < 0.05) ? "1" : "0";
 
               latestHandData = `${indexTip.x.toFixed(4)},${indexTip.y.toFixed(4)},${isPinching}`;
@@ -116,8 +138,10 @@
             const canvas = document.getElementById('landmark-canvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-              const hand = results.multiHandLandmarks[0];
+            
+            // 3. Chỉ vẽ khung xương lên Bàn Tay Tốt Nhất
+            if (bestHandIndex !== -1) {
+              const hand = results.multiHandLandmarks[bestHandIndex];
               // Connections (MediaPipe hand connections)
               const connections = [
                 [0,1],[1,2],[2,3],[3,4], // thumb

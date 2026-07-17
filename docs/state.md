@@ -42,16 +42,17 @@ Sau khi tách Hierarchy và tách Game Mode, các tham chiếu trong Inspector b
 
 | # | GameObject | Trường (Field) | Kéo thả (Drag) | Trạng thái |
 |---|---|---|---|---|
-| ① | `GameManager` | `bugSpawner` | → `BugSpawner` | ❓ Chưa xác nhận |
-| ② | `GameManager` | `cableManager` | → `CableManager` | ❓ Chưa xác nhận |
-| ③ | `ObjectPooler` | `Pools[]` | Worm, Trojan, BugExplosion (prefab, size:10) | ❓ Chưa xác nhận |
-| ④ | `BugSpawner` | `Bug Tags[]` | `"Worm"`, `"Trojan"` | ❓ Chưa xác nhận |
-| ⑤ | `Main Camera` | `CameraShake.cs` | Gắn component | ❓ Chưa xác nhận |
-| ⑥ | `HandCursor` | `TrailRenderer` | Thêm component, Time:0.15, Width:0.3→0 | ❓ Chưa xác nhận |
-| ⑦ | `Canvas` | `UIManager.cs` | Kéo thả Panels và TextMeshPro/Slider UI | ❓ Chưa xác nhận |
-| ⑧ | `CableManager`| `cableSystemContainer`| Tạo GameObject `CableSystem` rỗng, gom tất cả Port/Endpoint vào trong, rồi kéo vào ô này | ❓ Chưa xác nhận |
-| ⑨ | `Canvas` | `2 Nút Play` | 1 nút trỏ tới `OnStartBugDefenderClicked`, 1 nút trỏ tới `OnStartCableReconnectClicked` | ❓ Chưa xác nhận |
+| ① | `GameManager` | `bugSpawner` | → `FruitSpawner` (Đã đổi tên) | ✅ Đã xác nhận |
+| ② | `GameManager` | `cableManager` | → `CableManager` | ✅ Đã xác nhận |
+| ③ | `ObjectPooler` | `Pools[]` | Worm, Trojan, BugExplosion (prefab, size:10) | ✅ Đã xác nhận |
+| ④ | `FruitSpawner` | `Bug Tags[]` | `"Worm"`, `"Trojan"` | ✅ Đã xác nhận |
+| ⑤ | `Main Camera` | `CameraShake.cs` | Gắn component | ✅ Đã xác nhận |
+| ⑥ | `HandCursor` | `TrailRenderer` | Thêm component, Time:0.15, Width:0.3→0 | ✅ Đã xác nhận |
+| ⑦ | `Canvas` | `UIManager.cs` | Kéo thả Panels và TextMeshPro/Slider UI | ✅ Đã xác nhận |
+| ⑧ | `CableManager`| `cableSystemContainer`| → `CableSystemContainer` (Tắt mặc định) | ✅ Đã xác nhận |
+| ⑨ | `Canvas` | `2 Nút Play` | 1 nút trỏ tới `OnStartBugDefenderClicked`, 1 nút trỏ tới `OnStartCableReconnectClicked` | ✅ Đã xác nhận |
+| ⑩ | `[Background]` | `Tùy chỉnh UI` | Chứa Menu_Background, GamePlay_Background, GameOver_Background | ✅ Đã xác nhận |
 
-| ⑩ | `AudioManager` | `Audio Sources & Clips`| (TẠM HOÃN) Tạo GameObject `AudioManager`, gán script, gán 2 component AudioSource và kéo thả âm thanh | ❓ Chưa xác nhận |
+| ⑪ | `AudioManager` | `Audio Sources & Clips`| (TẠM HOÃN) Gán 2 component AudioSource và kéo thả âm thanh | ❓ Chưa xác nhận |
 
-> **Lưu ý:** Khi tất cả các ô trên được xác nhận ✅, xóa mục 5 này khỏi state.md.
+> **Lưu ý:** Hierarchy đã được tổ chức lại vô cùng gọn gàng với các thẻ `[Managers]`, `[GamePlay]`, `[Background]`!

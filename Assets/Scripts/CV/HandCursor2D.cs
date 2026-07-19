@@ -11,11 +11,11 @@ public class HandCursor2D : MonoBehaviour
 
     [Header("Adaptive Smoothing")]
     [Tooltip("Tốc độ bám dính khi tay đứng yên hoặc rê chậm (giúp chống rung).")]
-    public float minLerpSpeed = 5f;
+    public float minLerpSpeed = 12f;
     [Tooltip("Tốc độ bám dính khi vung tay chém (giúp bám sát tay, không bị độ trễ).")]
-    public float maxLerpSpeed = 30f;
+    public float maxLerpSpeed = 45f;
     [Tooltip("Độ nhạy chuyển đổi giữa chống rung và bám sát.")]
-    public float velocitySensitivity = 2f;
+    public float velocitySensitivity = 3.5f;
 
     [Header("Gesture Settings")]
     [Tooltip("Ngưỡng vận tốc để nhận diện hành động chém. Đã giảm xuống để nhạy hơn.")]
